@@ -1,4 +1,5 @@
 import express from "express"
+import globalErrorHandlers from "./middlewares/globalHandlers";
 
 const app = express();
 
@@ -10,6 +11,10 @@ app.get("/", (req,res,next) => {
         msg: "Welcome to elib apis"
     })
 })
+
+
+//global error handler
+app.use(globalErrorHandlers);
 
 
 export default app;
