@@ -102,7 +102,12 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     })
 }
 
+const logout = async (req: Request, res: Response, next: NextFunction) => {
+
+}
+
 export { 
     createUser,
-    loginUser
+    loginUser,
+    logout
 };
