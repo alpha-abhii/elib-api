@@ -9,5 +9,6 @@ const _config = {
     cloudinaryCloudName: process.env.CLOUDINAY_CLOUD_NAME,
     cloudinaryApiKey: process.env.CLOUDINAY_API_KEY,
     cloudinaryApiSecret: process.env.CLOUDINAY_API_SECRET,
+    frontendDomain: process.env.FRONTEND_DOMAIN,
 }
 export const config = Object.freeze(_config)
