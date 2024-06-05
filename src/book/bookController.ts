@@ -104,8 +104,13 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
     let completeCoverImage = "";
     const files = req.files as {[fieldName: string]: Express.Multer.File[]};
+
     if(files.coverImage) {
         
+        const oldcoverFileSplits = book.coverImage.split('/')
+        const oldcoverImagePublicId = oldcoverFileSplits.at(-2)+"/"+oldcoverFileSplits.at(-1)?.split(".").at(-2);
+        // console.log("coverImagePublicId",coverImagePublicId)
+
         const coverImageMimeType = files.coverImage[0].mimetype.split('/').at(-1);
         const fileName = files.coverImage[0].filename;
 
@@ -119,11 +124,24 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
         completeCoverImage = uploadResult.secure_url;
         await fs.promises.unlink(filePath);
+
+        
+        await cloudinary.uploader.destroy(oldcoverImagePublicId);
+        
+        
+    
+        
+
     }
     
     let completeFilePath = "";
 
     if(files.file){
+
+        const oldbookFileSplits = book.file.split("/")
+        const oldbookPublicId = oldbookFileSplits.at(-2)+"/"+oldbookFileSplits.at(-1);
+        // console.log(oldbookPublicId)
+
         const bookFileName = files.file[0].filename;
         const bookFilePath = path.resolve(__dirname,"../../public/data/uploads",bookFileName)
     
@@ -136,6 +154,10 @@ const updateBook = async (req: Request, res: Response, next: NextFunction) => {
 
         completeFilePath = bookFileUploadResult.secure_url;
         await fs.promises.unlink(bookFilePath);
+
+        await cloudinary.uploader.destroy(oldbookPublicId,{
+            resource_type: "raw"
+        });
     }
 
     const bookUpdate = await bookModel.findOneAndUpdate(
