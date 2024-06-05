@@ -182,9 +182,44 @@ const getSingleBook = async (req: Request, res: Response, next: NextFunction) =>
     }
 }
 
+const deleteBook = async (req: Request, res: Response, next: NextFunction) => {
+    const bookId = req.params.id;
+    // console.log("bookId: ",bookId)
+
+    const book = await bookModel.findOne({_id: bookId});
+
+    if(!book) {
+        return next(createHttpError(404,"Book not found"))
+    }
+
+    const _req = req as AuthRequest;
+
+    if(book.author.toString() !== _req.userId) {
+        return next(createHttpError(403,"You can not delete others book."))
+    }
+
+    const coverFileSplits = book.coverImage.split('/')
+    const coverImagePublicId = coverFileSplits.at(-2)+"/"+coverFileSplits.at(-1)?.split(".").at(-2);
+    // console.log("coverImagePublicId",coverImagePublicId)
+    
+    const bookFileSplits = book.file.split("/")
+    const bookPublicId = bookFileSplits.at(-2)+"/"+bookFileSplits.at(-1);
+    // console.log(bookPublicId)
+
+    await cloudinary.uploader.destroy(coverImagePublicId);
+    await cloudinary.uploader.destroy(bookPublicId,{
+        resource_type: "raw"
+    });
+
+    await bookModel.deleteOne({_id: bookId});
+
+    return res.sendStatus(204)
+}
+
 export {
     createBook,
     updateBook,
     listBooks,
-    getSingleBook
+    getSingleBook,
+    deleteBook
 }
